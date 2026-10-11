@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Job & Internship Detector</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        header {
+            background: #12304a;
+            color: white;
+            text-align: center;
+            padding: 28px 15px;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+        }
+
+        header p {
+            margin: 0;
+            color: #dbeafe;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: 30px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 220px;
+            padding: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: 2px solid #2563eb;
+            border-color: #2563eb;
+        }
+
+        button, .download-button {
+            display: block;
+            width: 100%;
+            margin-top: 18px;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .download-button {
+            background: #15803d;
+        }
+
+        .download-button:hover {
+            background: #166534;
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #eff6ff;
+            border-left: 5px solid #2563eb;
+            overflow-wrap: anywhere;
+        }
+
+        .result h3 {
+            margin-top: 0;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 8px 0;
+        }
+
+        .high-risk {
+            color: #991b1b;
+            background: #fee2e2;
+            border-left: 5px solid #dc2626;
+        }
+
+        .lower-risk {
+            color: #166534;
+            background: #dcfce7;
+            border-left: 5px solid #16a34a;
+        }
+
+        .model-score {
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .risk-meter {
+            margin-top: 24px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #dbe3ee;
+        }
+
+        .risk-meter h3 {
+            margin: 0 0 15px;
+        }
+
+        .risk-meter-track {
+            width: 100%;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .risk-meter-fill {
+            height: 100%;
+            border-radius: 20px;
+        }
+
+        .high-fill {
+            width: 100%;
+            background: #dc2626;
+        }
+
+        .low-fill {
+            width: 35%;
+            background: #16a34a;
+        }
+
+        .risk-meter-label {
+            margin-bottom: 0;
+            font-weight: bold;
+        }
+
+        .keyword-list {
+            padding-left: 24px;
+        }
+
+        .keyword-list li {
+            margin: 8px 0;
+            overflow-wrap: anywhere;
+        }
+
+        .keyword-found {
+            color: #991b1b;
+            font-weight: bold;
+        }
+
+        .no-keywords {
+            color: #475569;
+        }
+
+        .recommendation {
+            margin-top: 12px;
+            padding: 15px;
+            background: #fef3c7;
+            border-left: 5px solid #f59e0b;
+            border-radius: 6px;
+            color: #78350f;
+        }
+
+        .recommendation p {
+            margin: 0;
+        }
+
+        .note {
+            margin-top: 20px;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #dbe3ee;
+            margin: 24px 0;
+        }
+
+        .safety-list li {
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px 12px;
+                padding: 20px;
+            }
+
+            header h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>🔎 Fake Job Detector</h1>
+        <p>AI-powered job and internship posting analysis</p>
+    </header>
+
+    <main class="container">
+
+        <h2>Check a Job Posting</h2>
+
+        <p>
+            Paste a job or internship description below to receive
+            a machine-learning prediction.
+        </p>
+
+        <form method="POST">
+            <label for="job_text">Job or Internship Description</label>
+
+            <textarea
+                id="job_text"
+                name="job_text"
+                placeholder="Paste the complete job description here..."
+                required
+            ></textarea>
+
+            <button type="submit">Analyze Job Posting</button>
+        </form>
+
+        {% if prediction %}
+        <section class="result" aria-live="polite">
+
+            <h3>Analysis Result</h3>
+            <p>{{ prediction }}</p>
+
+            {% if risk_level == "HIGH RISK" %}
+                <div class="risk-badge high-risk">🔴 HIGH RISK</div>
+                <p>
+                    The model classified this posting as potentially
+                    fraudulent. Verify the employer before proceeding.
+                </p>
+
+            {% elif risk_level == "LOWER RISK" %}
+                <div class="risk-badge lower-risk">🟢 LOWER RISK</div>
+                <p>
+                    The model classified this posting as apparently
+                    legitimate. Independent verification is still necessary.
+                </p>
+            {% endif %}
+
+            {% if probability is not none %}
+                <p class="model-score">
+                    Model score for the predicted class:
+                    <strong>{{ "%.2f"|format(probability) }}%</strong>
+                </p>
+            {% endif %}
+
+            {% if risk_level %}
+            <div class="risk-meter">
+                <h3>📊 Job Risk Analysis</h3>
+
+                <div class="risk-meter-track" role="img"
+                     aria-label="Model classification indicator">
+                    {% if risk_level == "HIGH RISK" %}
+                        <div class="risk-meter-fill high-fill"></div>
+                    {% elif risk_level == "LOWER RISK" %}
+                        <div class="risk-meter-fill low-fill"></div>
+                    {% endif %}
+                </div>
+
+                <p class="risk-meter-label">
+                    {% if risk_level == "HIGH RISK" %}
+                        🔴 High Risk: Verify this job carefully.
+                    {% elif risk_level == "LOWER RISK" %}
+                        🟢 Lower Risk: Still verify the employer.
+                    {% endif %}
+                </p>
+
+                <p class="note">
+                    The bar represents the model's classification category,
+                    not a measured percentage of fraud risk.
+                </p>
+            </div>
+            {% endif %}
+
+            <hr>
+
+            <h3>🔍 Suspicious Keyword Analysis</h3>
+
+            <p>
+                Suspicious phrases detected:
+                <strong>{{ keyword_count }}</strong>
+            </p>
+
+            {% if suspicious_found %}
+                <p>Warning-list phrases found:</p>
+                <ul class="keyword-list">
+                    {% for keyword in suspicious_found %}
+                        <li class="keyword-found">⚠️ {{ keyword }}</li>
+                    {% endfor %}
+                </ul>
+
+                <p class="note">
+                    These phrases warrant checking but do not prove fraud.
+                </p>
+            {% else %}
+                <p class="no-keywords">
+                    No warning-list phrases were detected. This does not
+                    guarantee that the job is genuine.
+                </p>
+            {% endif %}
+
+            <hr>
+
+            <h3>🛡️ Safety Recommendation</h3>
+
+            <div class="recommendation">
+                <p>{{ recommendation }}</p>
+            </div>
+
+            <!-- Download Report Button -->
+            <a href="{{ url_for('download_report') }}"
+               class="download-button">
+                📄 Download Analysis Report
+            </a>
+
+        </section>
+        {% endif %}
+
+        <p class="note">
+            <strong>Disclaimer:</strong> This tool provides a machine-learning
+            prediction, not a guarantee. Always verify the employer, official
+            website, contact details, and any request for payment.
+        </p>
+
+    </main>
+
+    <section class="container">
+        <h2>🛡️ Job Safety Checklist</h2>
+
+        <p>Before accepting a job or internship, check these warning signs:</p>
+
+        <ul class="safety-list">
+            <li>⚠️ The employer asks for registration or training fees.</li>
+            <li>⚠️ The salary sounds unusually high for the work required.</li>
+            <li>⚠️ The recruiter requests sensitive bank details too early.</li>
+            <li>⚠️ The company has no verifiable official website.</li>
+            <li>⚠️ The recruiter pressures you to accept immediately.</li>
+        </ul>
+
+        <p class="note">
+            Verify the company independently before sharing personal
+            information or accepting an offer.
+        </p>
+    </section>
+
+    <footer>
+        Fake Job Detector | Machine Learning and NLP Project
+    </footer>
+
+</body>
+</html>

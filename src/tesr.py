@@ -1,0 +1,1 @@
+print("Fake Job Detector is Working")
